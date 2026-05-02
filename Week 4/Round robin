@@ -1,0 +1,105 @@
+#include <stdio.h>
+
+int main() {
+    int n, i, tq_count;
+
+    printf("Enter no. of processes: ");
+    scanf("%d", &n);
+
+    int at[n], bt[n];
+    printf("Enter Arrival time and Burst time:\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d AT BT: ", i + 1);
+        scanf("%d %d", &at[i], &bt[i]);
+    }
+
+    printf("Enter no. of time quantums to test: ");
+    scanf("%d", &tq_count);
+
+    int tq[tq_count];
+    printf("Enter time quantums:\n");
+    for (i = 0; i < tq_count; i++) {
+        printf("TQ %d: ", i + 1);
+        scanf("%d", &tq[i]);
+    }
+
+    // Outer loop to run the simulation for each Time Quantum entered
+    for (int q = 0; q < tq_count; q++) {
+        int quantum = tq[q];
+        int rt[n], ct[n], tat[n], wt[n], response[n], visited[n];
+        
+        for (i = 0; i < n; i++) {
+            rt[i] = bt[i];
+            visited[i] = 0;
+        }
+
+        int time = 0, completed = 0;
+        int gantt_p[100], gantt_t[100];
+        int g = 0;
+
+        printf("\n--- Results for Time Quantum = %d ---\n", quantum);
+
+        while (completed < n) {
+            int done_any = 0;
+
+            for (i = 0; i < n; i++) {
+                if (at[i] <= time && rt[i] > 0) {
+                    if (visited[i] == 0) {
+                        response[i] = time - at[i];
+                        visited[i] = 1;
+                    }
+
+                    done_any = 1;
+                    gantt_p[g] = i + 1;
+                    gantt_t[g] = time;
+                    g++;
+
+                    if (rt[i] > quantum) {
+                        time += quantum;
+                        rt[i] -= quantum;
+                    } else {
+                        time += rt[i];
+                        rt[i] = 0;
+                        ct[i] = time;
+                        completed++;
+                    }
+                }
+            }
+
+            if (!done_any) {
+                time++;
+            }
+        }
+
+        // Display Gantt Chart
+        printf("\nGantt Chart: ");
+        for (i = 0; i < g; i++) {
+            printf("| P%d ", gantt_p[i]);
+        }
+        printf("|\n");
+        for (i = 0; i < g; i++) {
+            printf("%d    ", gantt_t[i]);
+        }
+        printf("%d\n", time);
+
+        float total_wt = 0, total_tat = 0, total_rt = 0;
+        printf("\nP\tAT\tBT\tCT\tTAT\tWT\tRT\n");
+
+        for (i = 0; i < n; i++) {
+            tat[i] = ct[i] - at[i];
+            wt[i] = tat[i] - bt[i];
+
+            total_wt += wt[i];
+            total_tat += tat[i];
+            total_rt += response[i];
+
+            printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", i + 1, at[i], bt[i], ct[i], tat[i], wt[i], response[i]);
+        }
+
+        printf("\nAverage WT = %.2f", total_wt / n);
+        printf("\nAverage TAT = %.2f", total_tat / n);
+        printf("\nAverage RT = %.2f\n", total_rt / n);
+    }
+
+    return 0;
+}
