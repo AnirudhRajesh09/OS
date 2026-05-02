@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int a[20][20], r, c, i, j;
+    int sum = 0;
+
+    printf("Enter the no. of rows and cols in matrix: ");
+    scanf("%d %d", &r, &c);
+
+    if (r != c) {
+        printf("Diagonal elements are only found in square matrix\n");
+        exit(0);
+    }
+
+    printf("\nEnter the values:\n");
+    for (i = 0; i < r; i++) {
+        for (j = 0; j < c; j++) {
+            scanf("%d", &a[i][j]);
+        }
+    }
+
+    for (i = 0; i < r; i++) {
+        sum += a[i][i];
+    }
+
+    printf("Sum of diagonal elements = %d", sum);
+
+    return 0;
+}
